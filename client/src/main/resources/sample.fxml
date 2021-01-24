@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="600.0" style="-fx-background-color: #2A272A;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frontend.Controller">
+   <children>
+      <Pane prefHeight="600.0" prefWidth="80.0" style="-fx-background-color: #000000;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Line endX="74.0" endY="47.5" layoutX="-5.0" layoutY="-24.0" startX="20.5" startY="47.5" stroke="WHITE" strokeLineCap="ROUND" strokeType="OUTSIDE" strokeWidth="2.0" />
+            <Line endX="74.0" endY="47.5" layoutX="-5.0" layoutY="-12.0" startX="20.5" startY="47.5" stroke="WHITE" strokeLineCap="ROUND" strokeType="OUTSIDE" strokeWidth="2.0" />
+            <Line endX="74.0" endY="47.5" layoutX="-5.0" startX="20.5" startY="47.5" stroke="WHITE" strokeLineCap="ROUND" strokeType="OUTSIDE" strokeWidth="2.0" />
+            <ImageView fitHeight="77.0" fitWidth="58.0" layoutX="13.0" layoutY="60.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="img/user.png" />
+               </image>
+            </ImageView>
+            <ImageView fitHeight="77.0" fitWidth="58.0" layoutX="13.0" layoutY="230.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="/img/setting.png" />
+               </image>
+            </ImageView>
+            <ImageView fitHeight="65.0" fitWidth="68.0" layoutX="8.0" layoutY="528.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="/img/exit.png" />
+               </image>
+            </ImageView>
+            <ImageView fitHeight="77.0" fitWidth="58.0" layoutX="13.0" layoutY="136.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="/img/group.png" />
+               </image>
+            </ImageView>
+         </children>
+      </Pane>
+      <ScrollPane layoutX="80.0" layoutY="1.0" prefHeight="551.0" prefWidth="175.0" style="-fx-background-color: #2A272A;" AnchorPane.bottomAnchor="48.0" AnchorPane.leftAnchor="80.0" AnchorPane.topAnchor="1.0">
+         <content>
+            <VBox fx:id="clirntsPanel" prefHeight="545.0" prefWidth="172.0" style="-fx-background-color: #2A272A;" />
+         </content></ScrollPane>
+      <ScrollPane layoutX="255.0" layoutY="1.0" prefHeight="551.0" prefWidth="345.0" style="-fx-background-color: #677381;" AnchorPane.bottomAnchor="48.0" AnchorPane.leftAnchor="254.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="1.0">
+         <content>
+            <VBox fx:id="msgPanel" prefHeight="532.0" prefWidth="343.0" style="-fx-background-color: #677381;" />
+         </content></ScrollPane>
+      <TextArea fx:id="sendText" layoutX="80.0" layoutY="552.0" onMouseDragEntered="#clickSendButton" prefHeight="36.0" prefWidth="445.0" text="Your message" AnchorPane.bottomAnchor="-2.0" AnchorPane.leftAnchor="80.0" AnchorPane.rightAnchor="75.0">
+         <font>
+            <Font size="16.0" />
+         </font></TextArea>
+      <Button fx:id="sendButton" layoutX="534.0" layoutY="565.0" mnemonicParsing="false" onAction="#clickSendButton" onDragOver="#clickSendButton" text="Button" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="14.0" />
+   </children>
+</AnchorPane>
