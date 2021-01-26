@@ -1,7 +1,7 @@
 package frontend.messages;
 
 
-public enum MsgType {
+public enum MsgType  {
   OUT,
   IN,
   SYSTEM;
