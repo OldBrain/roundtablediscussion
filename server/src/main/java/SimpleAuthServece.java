@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SimpleAuthServece implements AuthServece {
 
@@ -13,12 +14,16 @@ public class SimpleAuthServece implements AuthServece {
       this.password = password;
       this.nicName = nicName;
     }
+
+    public String getLogin() {
+      return login;
+    }
   }
 
-  private List<UserData> users;
+  private CopyOnWriteArrayList<UserData> users;
 
   public SimpleAuthServece() {
-    users = new ArrayList<UserData>();
+    users = new CopyOnWriteArrayList<UserData>();
     users.add(new UserData("qwe", "qwe", "qwe"));
     users.add(new UserData("asd", "asd", "asd"));
     users.add(new UserData("zxc", "zxc", "zxc"));
@@ -33,5 +38,17 @@ public class SimpleAuthServece implements AuthServece {
       }
     }
     return null;
+  }
+
+  @Override
+  public boolean registration(String login, String pass, String name) {
+    boolean ok = users.stream().noneMatch(userData -> userData.login.equals(login)
+        || userData.nicName.equals(name)
+    );
+    if (ok) {
+      users.add(new UserData(login, pass, name));
+    }
+    return ok;
+
   }
 }

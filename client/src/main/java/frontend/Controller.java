@@ -7,13 +7,20 @@ import frontend.messages.Msg;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import sockedprocessing.DISMethod;
 import sockedprocessing.MethodSockedProcessing;
 
@@ -32,8 +39,10 @@ public class Controller implements Initializable {
   private Scanner scanner;
   Socket socket;
   private Stage stage;
+  private Stage regStage;
   private boolean identification;
   private FactoryMsg factoryMsg = new FactoryMsg();
+  private RegController regController;
   @FXML
   private Button sendButton;
   @FXML
@@ -48,7 +57,9 @@ public class Controller implements Initializable {
   private TextField textLogin;
   @FXML
   private TextField textPass;
-
+  @FXML
+//  private ListView<String> clientsList;
+  private ListView<String> clientsList;
 
   private String outText;
   private String nickName;
@@ -97,6 +108,15 @@ public class Controller implements Initializable {
   public void initialize(URL location, ResourceBundle resources) {
     Platform.runLater(() -> {
       stage = (Stage) msgPanel.getScene().getWindow();
+      stage.setOnCloseRequest(event -> {
+        if (socket != null && !socket.isClosed()) {
+          try {
+            socketProcessing.outMsg(Commands.END);
+          } catch (IOException ioException) {
+            ioException.printStackTrace();
+          }
+        }
+      });
     });
 
     setIdentification(false);
@@ -129,6 +149,14 @@ public class Controller implements Initializable {
             String tmpText = socketProcessing.getInMsg();
             if (tmpText.startsWith("/")) {
 
+              if (tmpText.equals(Commands.REG_OK)) {
+                regController.regOk();
+              }
+
+              if (tmpText.equals(Commands.REG_NO)) {
+                regController.regNo();
+              }
+
 
               if (tmpText.startsWith(Commands.AUTOK)) {
                 nickName = tmpText.split("\\s")[1];
@@ -159,18 +187,38 @@ public class Controller implements Initializable {
           // Работа
           while (true) {
             String tmpText = socketProcessing.getInMsg();
-            if (tmpText.equals("/end")) {
-              msgInPanel(MsgType.SYSTEM, "Вы отключены.");
-              setIdentification(false);
-              break;
-            }
-            if ((tmpText.startsWith("#"))) {
-              msgInPanel(MsgType.SYSTEM, tmpText);
+            if (tmpText.startsWith("/")) {
+
+              if (tmpText.startsWith(Commands.ClIENTS_LIST)) {
+                String[] token = tmpText.split("\\s");
+
+                Platform.runLater(() -> {
+
+                  clientsList.getItems().clear();
+
+                  for (int i = 1; i < token.length; i++) {
+                    clientsList.getItems().add(token[i]);
+                  }
+
+                });
+
+              }
+
+              if (tmpText.equals("/end")) {
+                msgInPanel(MsgType.SYSTEM, "Вы отключены.");
+                setIdentification(false);
+                break;
+              }
             } else {
-              if (tmpText.startsWith("[" + nickName)) {
-                msgInPanel(MsgType.OUT, tmpText);
+
+              if ((tmpText.startsWith("#"))) {
+                msgInPanel(MsgType.SYSTEM, tmpText);
               } else {
-                msgInPanel(MsgType.IN, tmpText);
+                if (tmpText.startsWith("[" + nickName)) {
+                  msgInPanel(MsgType.OUT, tmpText);
+                } else {
+                  msgInPanel(MsgType.IN, tmpText);
+                }
               }
             }
           }
@@ -205,6 +253,45 @@ public class Controller implements Initializable {
   }
 
   public void btRegClick(ActionEvent actionEvent) {
+    if (regStage == null) {
+      createRegWindow();
+      regStage.show();
+    } else {
+      regStage.show();
+    }
+  }
+
+  private void createRegWindow() {
+    try {
+
+      FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/auth.fxml"));
+      regStage = new Stage();
+      Parent root = fxmlLoader.load();
+      regStage.setTitle("Chat registration");
+      regStage.setScene(new Scene(root, 600, 600));
+      regController = fxmlLoader.getController();
+      regController.setController(this);
+      ((RegController) fxmlLoader.getController()).setController(this);
+      regStage.initModality(Modality.APPLICATION_MODAL);
+      regStage.initStyle(StageStyle.UTILITY);
+    } catch (IOException ioException) {
+      ioException.printStackTrace();
+    }
+
+  }
+
+  public void trayToReg(String login, String password, String nickName) {
+    if (socket == null || socket.isClosed()) {
+      connect();
+    }
+
+    String msg = String.format("%s %s %s %s", Commands.REGISTRATION, login, password, nickName);
+    try {
+      socketProcessing.outMsg(msg);
+    } catch (IOException ioException) {
+      ioException.printStackTrace();
+    }
+
   }
 
   public void btExitClick(ActionEvent actionEvent) {
@@ -243,4 +330,12 @@ public class Controller implements Initializable {
 
     }
   }
+
+
+  public void commandPrivate(MouseEvent mouseEvent) {
+    System.out.println(clientsList.getSelectionModel().getSelectedItem());
+    sendText.setText(Commands.PRIV + " " + clientsList.getSelectionModel().getSelectedItem());
+  }
+
+
 }
