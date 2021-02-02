@@ -10,6 +10,10 @@ public final class Commands {
   public static final String REGISTRATION = "/reg";
   public static final String REG_OK = "/regok";
   public static final String REG_NO = "/regno";
+  public static final String NEW_NICK = "/new_nick";
+  public static final String GET_ALL_HISTORY = "/getallhistory";
+  public static final String GET_PRIV_HISTORY = "/getprivhistory";
+  public static final String GET_DATE_HISTORY = "/getdatehistory";
 
 
 }

@@ -1,3 +1,5 @@
+import constants.Commands;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -49,6 +51,31 @@ public class SimpleAuthServece implements AuthServece {
       users.add(new UserData(login, pass, name));
     }
     return ok;
+
+  }
+
+  @Override
+  public int getId(String login, String password) {
+    return 0;
+  }
+
+  @Override
+  public boolean setName(String name, int id) {
+    return false;
+  }
+
+  @Override
+  public void addMsg(int id, String text, int toWhom) {
+
+  }
+
+  @Override
+  public int getId(String login) {
+    return 0;
+  }
+
+  @Override
+  public void getHistory(String commands, int towhom, Server server, ClientHandler clientHandler) {
 
   }
 }

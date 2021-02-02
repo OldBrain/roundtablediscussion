@@ -11,11 +11,13 @@ public class Server {
   private Socket socket;
   private final int PORT = 8189;
   private List<ClientHandler> clients;
+  //  private AuthServece authServece;
   private AuthServece authServece;
 
   public Server() {
     clients = new CopyOnWriteArrayList<>();
-    authServece = new SimpleAuthServece();
+//    authServece = new SimpleAuthServece();
+    authServece = new DbController();
     try {
       server = new ServerSocket(PORT);
       System.out.println("Server started");
@@ -40,9 +42,18 @@ public class Server {
     }
   }
 
+  public void broadcastHistory(ClientHandler clientHandler, String msg, int id) {
+    for (ClientHandler ch : clients) {
+      if (ch.id == id) {
+        ch.sendMsg(msg);
+      }
+    }
+  }
+
   public void broadcastMsg(ClientHandler clientHandler, String msg) {
     String message = String.format("[%s:] %s", clientHandler.getNikName(), msg);
     for (ClientHandler ch : clients) {
+
       ch.sendMsg(message);
     }
   }
@@ -65,18 +76,19 @@ public class Server {
 
   void privateMsg(ClientHandler clientHandler, String msg) {
     String[] token = msg.split("\\s", 3);
+    String privMsg = String.format("[%s:]->[%s] %s", clientHandler.getNikName(), token[1], token[2]);
 
     for (ClientHandler ch : clients) {
       if (ch.getNikName().equals(token[1])) {
-        String message = String.format("[%s:]->[%s] %s", clientHandler.getNikName(), token[1], token[2]);
-        System.out.println(message);
-        ch.sendMsg(message);
-        clientHandler.sendMsg(message);
+//        String message = String.format("[%s:]->[%s] %s", clientHandler.getNikName(), token[1], token[2]);
+        ch.sendMsg(privMsg);
+        authServece.addMsg(ch.id, privMsg, clientHandler.id);
+        clientHandler.sendMsg(privMsg);
         return;
       }
     }
-    clientHandler.sendMsg("#Получателя [" + token[1] + "] нет в сети!");
-
+    clientHandler.sendMsg("#Получателя [" + token[1] + "] нет в сети! Как только появится доставлю.");
+    authServece.addMsg(authServece.getId(token[1]), privMsg, clientHandler.id);
   }
 
   void subscribe(ClientHandler clientHandler) {
