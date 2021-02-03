@@ -2,11 +2,10 @@ import constants.Commands;
 import sockedprocessing.DISMethod;
 import sockedprocessing.MethodSockedProcessing;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.sql.SQLException;
 
 public class ClientHandler {
   private String nikName;
@@ -14,6 +13,7 @@ public class ClientHandler {
   private Server server;
   private Socket socket;
   private MethodSockedProcessing socketProcessing;
+  public int id;
 
 
   public ClientHandler(Server server, Socket socket) {
@@ -40,6 +40,7 @@ public class ClientHandler {
               if (isRegistered) {
                 socket.setSoTimeout(0);
                 socketProcessing.outMsg(Commands.REG_OK);
+                server.getAuthServece().getId(token[1], token[2]);
               } else {
                 socketProcessing.outMsg(Commands.REG_NO);
               }
@@ -48,8 +49,17 @@ public class ClientHandler {
 
             if (str.startsWith(Commands.AUT)) {
               String[] token = str.split("\\s");
-              String newNick = server.getAuthServece()
-                  .getNicName(token[1], token[2]);
+
+              String newNick = null;
+              try {
+                newNick = server.getAuthServece()
+                    .getNicName(token[1], token[2]);
+
+
+              } catch (SQLException throwables) {
+                throwables.printStackTrace();
+              }
+
               login = token[1];
               if (newNick != null) {
 
@@ -57,8 +67,12 @@ public class ClientHandler {
                   socket.setSoTimeout(0);
                   nikName = newNick;
                   socketProcessing.outMsg(Commands.AUTOK + " " + nikName);
+                  id = server.getAuthServece().getId(token[1], token[2]);
                   System.out.println("Клиент подписан" + socket.getRemoteSocketAddress());
                   server.subscribe(this);
+
+                  server.getAuthServece().getHistory(Commands.GET_ALL_HISTORY, id, server, this);
+
                   break;
                 } else {
 
@@ -82,22 +96,40 @@ public class ClientHandler {
         while (true) {
           String str = socketProcessing.getInMsg().trim();
           if (str.indexOf('/') == 0) {
+            //********** смена имени
+            if (str.startsWith(Commands.NEW_NICK)) {
+              String[] token = str.split("\\s");
+              String oldNickName = nikName;
+              System.out.println("New nick>" + token[1]);
+              nikName = token[1];
+              server.getAuthServece().setName(token[1], id);
+              sendMsg(Commands.NEW_NICK + " " + nikName);
+              server.broadcastMsg(this, "#Теперь у " + oldNickName + " Новый ник>" + token[1]);
+              server.broadcastClientsList();
+
+            }
+
+            //*************************************
             if (str.equals(Commands.END)) {
               System.out.println("client disconnected");
               sendMsg("/end");
               break;
             }
+
+
             if (str.startsWith(Commands.PRIV)) {
 //              System.out.println("Подучена команда приватного сообщения");
               //  String[] token =str.split("\\s");
               server.privateMsg(this, str);
+
             }
 
 
           } else {
 //            System.out.println("#Получил сообщение: " + str);
             server.broadcastMsg(this, str);
-
+            String message = String.format("[%s:] %s", nikName, str);
+            server.getAuthServece().addMsg(0, message, id);
           }
 
 
@@ -131,13 +163,17 @@ public class ClientHandler {
   public void sendMsg(String msg) {
     try {
       socketProcessing.outMsg(msg);
+
 //      System.out.println("Отправляю > " + msg);
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
 
+
   public String getNikName() {
     return nikName;
   }
+
+
 }

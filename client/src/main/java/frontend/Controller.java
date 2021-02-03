@@ -189,6 +189,12 @@ public class Controller implements Initializable {
             String tmpText = socketProcessing.getInMsg();
             if (tmpText.startsWith("/")) {
 
+              if (tmpText.startsWith(Commands.NEW_NICK)) {
+                String[] token = tmpText.split("\\s");
+                setTile(token[1]);
+              }
+
+
               if (tmpText.startsWith(Commands.ClIENTS_LIST)) {
                 String[] token = tmpText.split("\\s");
 
