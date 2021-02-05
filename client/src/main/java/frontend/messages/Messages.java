@@ -6,7 +6,7 @@ import javafx.scene.text.Font;
 public abstract class Messages extends TextField {
   public Messages(String text) {
     super(text);
-    this.setFont(Font.font(20f));
+    this.setFont(Font.font(15f));
     this.autosize();
 
     this.setMaxWidth(400);

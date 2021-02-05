@@ -1,6 +1,8 @@
 package frontend;
 
 import constants.Commands;
+import frontend.history.HistoryProcessing;
+import frontend.history.HistoryAndFile;
 import frontend.messages.MsgType;
 import frontend.messages.FactoryMsg;
 import frontend.messages.Msg;
@@ -33,6 +35,7 @@ import java.util.Scanner;
 
 public class Controller implements Initializable {
 
+  private HistoryProcessing history;
   private final String IP = "localhost";
   private final int PORT = 8189;
   private MethodSockedProcessing socketProcessing;
@@ -58,14 +61,15 @@ public class Controller implements Initializable {
   @FXML
   private TextField textPass;
   @FXML
-//  private ListView<String> clientsList;
+
   private ListView<String> clientsList;
 
-  private String outText;
   private String nickName;
 
 
   public Controller() {
+
+
   }
 
 
@@ -75,6 +79,7 @@ public class Controller implements Initializable {
 
     try {
       socketProcessing.outMsg(sendText.getText());
+//      history.SaveHistory(sendText.getText());
     } catch (IOException ioException) {
       ioException.printStackTrace();
     }
@@ -95,13 +100,28 @@ public class Controller implements Initializable {
     if (!identification) {
       nickName = "";
     } else {
-
+      history = new HistoryAndFile(nickName);
+//      history.getHistory(100);
+      historyToPanel();
     }
     setTile(nickName);
+
+
     Platform.runLater(() -> {
 
       msgPanel.getChildren().clear();
     });
+  }
+
+  private void historyToPanel() {
+    Platform.runLater(() -> {
+      history.getHistory(10).forEach(s -> {
+        msgInPanel(MsgType.HISTORY, s);
+
+      });
+    });
+    history.clearBuffer();
+
   }
 
   @Override
@@ -109,8 +129,11 @@ public class Controller implements Initializable {
     Platform.runLater(() -> {
       stage = (Stage) msgPanel.getScene().getWindow();
       stage.setOnCloseRequest(event -> {
+
+
         if (socket != null && !socket.isClosed()) {
           try {
+            history.clearBuffer();
             socketProcessing.outMsg(Commands.END);
           } catch (IOException ioException) {
             ioException.printStackTrace();
@@ -120,8 +143,6 @@ public class Controller implements Initializable {
     });
 
     setIdentification(false);
-
-
     msgPanel.setSpacing(5);// Отступ между элементами
   }
 
@@ -174,9 +195,11 @@ public class Controller implements Initializable {
             } else {
               if (tmpText.startsWith("[" + nickName)) {
                 msgInPanel(MsgType.OUT, tmpText);
+
               } else {
 
                 msgInPanel(MsgType.IN, tmpText);
+
               }
 
             }
@@ -216,7 +239,7 @@ public class Controller implements Initializable {
                 break;
               }
             } else {
-
+              historySave(tmpText);
               if ((tmpText.startsWith("#"))) {
                 msgInPanel(MsgType.SYSTEM, tmpText);
               } else {
@@ -245,6 +268,10 @@ public class Controller implements Initializable {
           }
 
         }
+      }
+
+      private void historySave(String tmpText) {
+        history.saveHistory(tmpText);
       }
     });
     threadIn.start();

@@ -4,10 +4,10 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+
 import java.awt.*;
 
 public class RegController {
-
 
 
   Controller controller = new Controller();
@@ -33,10 +33,11 @@ public class RegController {
 
   }
 
-  public void regOk(){
+  public void regOk() {
     autMsg.appendText("Регистрация прошла успешно\n");
   }
-  public void regNo(){
+
+  public void regNo() {
     autMsg.appendText("Отказано в регистрации\n");
   }
 

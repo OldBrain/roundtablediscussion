@@ -38,11 +38,14 @@ public class DbController implements AuthServece {
 
     try {
       String sql = "SELECT date,msgtext FROM msg  WHERE ( towhom = 0 or towhom=" + towhom + ");";
-      System.out.println(sql);
+//      System.out.println(sql);
       ResultSet resultS = st.executeQuery(sql);
       while (resultS.next()) {
         String s = "[" + resultS.getString("date").toString() + "]" + resultS.getString("msgtext");
-        server.broadcastHistory(clientHandler, s, towhom);
+
+//       ***Временно отключено****
+//        server.broadcastHistory(clientHandler, s, towhom);
+//      **********************************************
       }
 
 

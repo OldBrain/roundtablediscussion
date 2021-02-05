@@ -11,6 +11,8 @@ public class FactoryMsg {
         return new OutMsg(textMsg);
       case SYSTEM:
         return new SysMsg(textMsg);
+      case HISTORY:
+        return new HitoryMsg(textMsg);
       default:
         return null;
     }
